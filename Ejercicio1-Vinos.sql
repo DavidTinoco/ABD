@@ -1,3 +1,4 @@
+--Realiza una función que reciba una denominación de origen y una provincia y muestre la cantidad delitros de vinos de esa denominación de origen que ha sido enviada al total de clientes de dicha provincia. Las excepciones a contemplar deben ser las siguientes: Denominación de Origen Inexistente y Provincia sin Clientes.
 create or replace procedure ComprobarDenominacionExiste(p_Deno vinos.denominacion%type)
 is
 	e_DenominacionInexistente exception;
@@ -35,6 +36,7 @@ end ComprobarProvinciaExiste;
 create or replace function LitrosDenominacionEnProvincia(p_Deno vinos.denominacion%type, p_Prov pedidos.direnvio%type)
 return number
 is
+-- Cursor que nos guardará los registros de cuantos litros se han vendido en cada linea del registro
 	cursor c_ldep
 	is
 	select f.capacidad * lp.numunidades as litraje
@@ -52,6 +54,7 @@ is
 begin
 	ComprobarDenominacionExiste(p_Deno);
 	ComprobarProvinciaExiste(p_Prov);
+-- Ir sumando el total de litros del cursor
 	for i in c_ldep loop
 		v_tempo := i.litraje;
 		v_total := v_total + v_tempo;
