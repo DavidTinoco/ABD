@@ -3,6 +3,31 @@
 alter table vinos add LitrosVendidos number(38,2);
 alter table pedidos add fecha date;
 ----------
+create or replace procedure rellenalitrosvendidos
+is
+-- Cursor para recorrer todos los productos de botellas con lo que recoger los litros vendidos
+	cursor c_rl
+	is
+	select codproducto, codvino, codformato
+	from vinos_formato;
+	v_total number;
+	
+begin
+-- Inicializamos LitrosVendidos a cero, ya que, si el campo está vacio, puede salir un valor aleatorio y si ya hay datos, no nos sirve porque vamos a sumar todo lo que se ha vendido
+	update vinos set LitrosVendidos = 0;
+	for i in c_rl loop
+-- Nos dará la suma de los litros de vinos que se han vendido del producto que nos da el cursor 
+		select sum(lp.numunidades) * f.capacidad into v_total
+		from lineas_de_pedido lp, formatos f
+		where codproducto = i.codproducto
+		and codformato = i.codformato;
+
+		update vinos set LitrosVendidos = (LitrosVendidos + v_total)
+		where codvino = i.codvino;
+	end loop;
+end;
+/
+----------
 create or replace procedure comprobarfecha(p_codpedido pedidos.fecha%type)
 is
 	v_fechapedido pedidos.fecha%type;
